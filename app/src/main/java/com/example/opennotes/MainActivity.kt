@@ -3,45 +3,26 @@ package com.example.opennotes
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.opennotes.ui.theme.OpenNotesTheme
+import androidx.compose.runtime.*
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            OpenNotesTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            val auth = FirebaseAuth.getInstance()
+            // Track state if a user is currently logged in
+            var user by remember { mutableStateOf(auth.currentUser) }
+
+            if (user == null) {
+                AuthScreen(onAuthSuccess = {
+                    user = auth.currentUser
+                })
+            } else {
+                NotesScreen(onLogOut = {
+                    user = null
+                })
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    OpenNotesTheme {
-        Greeting("Android")
     }
 }
